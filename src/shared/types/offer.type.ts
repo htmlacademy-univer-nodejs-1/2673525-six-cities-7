@@ -1,5 +1,5 @@
-import { Location } from "./location.type";
-import { User } from "./user.type";
+import { Location } from './location.type.js';
+import { User } from './user.type.js';
 
 export type City = 'Paris' | 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf';
 
