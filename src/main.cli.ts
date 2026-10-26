@@ -16,5 +16,5 @@ async function bootstrap() {
 
 bootstrap().catch((error: unknown) => {
   console.error('Failed to run CLI:', error);
-  process.exit(1);
+  throw error;
 });
