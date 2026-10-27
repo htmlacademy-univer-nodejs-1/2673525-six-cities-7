@@ -82,6 +82,10 @@ npm run start:dev
 [2026-10-18 20:02:50.174 +0500] INFO (37824): .env file found and successfully parsed!
 [2026-10-18 20:02:50.175 +0500] INFO (37824): Application initialization
 [2026-10-18 20:02:50.176 +0500] INFO (37824): Get value from env $PORT: 5600
+[2026-10-18 20:02:50.200 +0500] INFO (37824): Init database...
+[2026-10-18 20:02:50.210 +0500] INFO (37824): Trying to connect to MongoDB...
+[2026-10-18 20:02:50.250 +0500] INFO (37824): Database connection established.
+[2026-10-18 20:02:50.251 +0500] INFO (37824): Init database completed
 ```
 
 #### Запустить CLI
@@ -100,7 +104,7 @@ npm run cli -- <команда> [аргументы]
 |---|---|
 | `--help` | Показывает список доступных команд и примеры использования. Вызывается автоматически, если не передать никаких аргументов. |
 | `--version` | Выводит версию приложения, считанную из `package.json`. |
-| `--import <path>` | Импортирует данные из TSV-файла по указанному пути и выводит результат в консоль. |
+| `--import <filename> <login> <password> <host> <dbname> <salt>` | Импортирует данные из TSV-файла в MongoDB. Параметры подключения передаются аргументами. |
 | `--generate <n> <path> <url>` | Генерирует `n` тестовых предложений, запрашивая исходные данные с JSON-сервера по адресу `<url>`, и сохраняет их в TSV-файл по пути `<path>`. |
 
 Примеры:
@@ -108,8 +112,6 @@ npm run cli -- <команда> [аргументы]
 ```bash
 npm run cli -- --help
 npm run cli -- --version
-npm run cli -- --import ./mocks/mock-data.tsv
-npm run cli -- --generate 10 ./mocks/generated-data.tsv http://localhost:3123/api
 ```
 
 **Важно.** Между `npm run cli` и командой приложения обязателен разделитель `--`. Без него флаги вроде `--version` перехватит сам npm и выведет собственную версию вместо версии приложения. Сравните:
@@ -124,6 +126,41 @@ npm run cli -- --version      # выведет версию приложения
 ```bash
 node ./dist/main.cli.js --help
 node ./dist/main.cli.js --import ./mocks/mock-data.tsv
+```
+
+##### Команда `--import`:
+
+```bash
+npm run cli -- --import <filename> <login> <password> <host> <dbname> <salt>
+```
+
+Импортирует данные из TSV-файла в MongoDB. Аргументы:
+
+- `<filename>` — путь к TSV-файлу;
+- `<login>` — логин для подключения к MongoDB;
+- `<password>` — пароль для подключения к MongoDB;
+- `<host>` — хост MongoDB (например, 127.0.0.1);
+- `<dbname>` — имя базы данных (например, six-cities);
+- `<salt>` — соль для хеширования паролей пользователей.
+
+Пример:
+
+```bash
+npm run cli -- --import ./mocks/mock-data.tsv admin test 127.0.0.1 six-cities saltsalt
+```
+
+##### Команда `--generate`:
+
+```bash
+npm run cli -- --generate <n> <path> <url>
+```
+
+Генерирует `n` тестовых предложений, запрашивая исходные данные с JSON-сервера по адресу `<url>`, и сохраняет их в TSV-файл по пути `<path>`.
+
+Пример:
+
+```bash
+npm run cli -- --generate 10 ./mocks/generated-data.tsv http://localhost:3123/api
 ```
 
 #### Запустить мок-сервер
@@ -146,6 +183,30 @@ npm run mock:server
 - **STDOUT** — сырой JSON. В `start:dev` он прогоняется через `pino-pretty` для человекочитаемого вывода.
 
 В production-режиме (`npm start`) логи идут в консоль JSON и в файл. В dev-режиме (`npm run start:dev`) — то же плюс форматирование через `pino-pretty` в консоли.
+
+В CLI используется отдельная реализация — `ConsoleLogger`, которая пишет в консоль без форматирования. Это сделано, чтобы CLI не засорял `logs/rest.log` REST-приложения.
+
+
+## Внедрение зависимостей
+В проекте используется **inversify** для DI. Контейнеры описаны в:
+
+- `src/rest/rest.container.ts` — зависимости REST-приложения (`RestApplication`, `Logger`, `Config`, `DatabaseClient`).
+
+- `src/shared/modules/user/user.container.ts` — зависимости модуля `User` (`UserService`, `UserModel`).
+
+- `src/shared/modules/offer/offer.container.ts`— зависимости модуля `Offer` (`OfferService`, `OfferModel`).
+
+Идентификаторы — в `src/shared/types/component.ts`. Классы, которые внедряются, помечены декоратором `@injectable()`, зависимости — `@inject(Component.X)`. Получение приложения — через `container.get<RestApplication>(Component.RestApplication)`, а не через `new`.
+
+Добавление новой зависимости:
+
+1. Добавить идентификатор в Component (src/shared/types/component.ts).
+
+2. Пометить класс @injectable().
+
+3. Забиндить в контейнере (container.bind<...>(Component.X).to(X).inSingletonScope()).
+
+4. Внедрить через @inject(Component.X) в конструкторе потребителя.
 
 ## Структура проекта
 
