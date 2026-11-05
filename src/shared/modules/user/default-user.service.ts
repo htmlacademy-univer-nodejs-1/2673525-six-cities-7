@@ -5,6 +5,8 @@ import { CreateUserDto } from './dto/create-user.dto.js';
 import { inject, injectable } from 'inversify';
 import { Component } from '../../types/index.js';
 import { Logger } from '../../libs/logger/index.js';
+import { Types } from 'mongoose';
+import { ChangeFavoriteDto } from './dto/change-favorite.dto.js';
 
 @injectable()
 export class DefaultUserService implements UserService {
@@ -50,5 +52,70 @@ export class DefaultUserService implements UserService {
       .findOne({ email })
       .select('+password')
       .exec();
+  }
+
+  public async addFavorite(
+    userId: string,
+    dto: ChangeFavoriteDto
+  ): Promise<DocumentType<UserEntity> | null> {
+    return this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          $addToSet: {
+            favoriteOffers: new Types.ObjectId(dto.offerId),
+          },
+        },
+        { new: true }
+      )
+      .exec();
+  }
+
+  public async removeFavorite(
+    userId: string,
+    dto: ChangeFavoriteDto
+  ): Promise<DocumentType<UserEntity> | null> {
+    return this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          $pull: {
+            favoriteOffers: new Types.ObjectId(dto.offerId),
+          },
+        },
+        { new: true }
+      )
+      .exec();
+  }
+
+  public async findFavoriteIds(userId: string): Promise<string[] | null> {
+    const user = await this.userModel
+      .findById(userId)
+      .select('favoriteOffers')
+      .exec();
+
+    if (!user) {
+      return null;
+    }
+
+    return (user.favoriteOffers ?? [])
+      .map((offerId) => offerId.toString());
+  }
+
+  public async removeOfferFromFavorites(offerId: string): Promise<number> {
+    const result = await this.userModel
+      .updateMany(
+        {
+          favoriteOffers: new Types.ObjectId(offerId),
+        },
+        {
+          $pull: {
+            favoriteOffers: new Types.ObjectId(offerId),
+          },
+        }
+      )
+      .exec();
+
+    return result.modifiedCount;
   }
 }

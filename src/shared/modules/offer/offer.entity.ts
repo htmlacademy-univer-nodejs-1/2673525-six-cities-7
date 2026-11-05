@@ -1,10 +1,8 @@
-import { defaultClasses, getModelForClass, prop, modelOptions, Ref } from '@typegoose/typegoose';
 import {
-  City,
-  HousingType,
-  Goods,
-  Location,
-  Offer,
+  defaultClasses, getModelForClass, prop, modelOptions, Ref
+} from '@typegoose/typegoose';
+import {
+  City, HousingType, Goods, Location, Offer,
 } from '../../types/index.js';
 import { UserEntity } from '../user/user.entity.js';
 import { LocationEntity } from '../location/index.js';
@@ -18,7 +16,8 @@ export interface OfferEntity extends defaultClasses.Base { }
   },
 })
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export class OfferEntity extends defaultClasses.TimeStamps implements Omit<Offer, 'author'> {
+export class OfferEntity extends defaultClasses.TimeStamps
+  implements Omit<Offer, 'author' | 'isFavorite'> {
   @prop({ required: true })
   public title!: string;
 
@@ -40,10 +39,7 @@ export class OfferEntity extends defaultClasses.TimeStamps implements Omit<Offer
   @prop({ required: true })
   public isPremium!: boolean;
 
-  @prop({ required: true })
-  public isFavorite!: boolean;
-
-  @prop({ required: true })
+  @prop({ required: true, default: 0 })
   public rating!: number;
 
   @prop({ required: true, enum: ['apartment', 'house', 'room', 'hotel'] })
