@@ -6,8 +6,7 @@ import { CommentService } from '../../comment/index.js';
 import { ChangeFavoriteDto, UserService } from '../../user/index.js';
 
 @injectable()
-export class DefaultOfferManagementService
-  implements OfferManagementService {
+export class DefaultOfferManagementService implements OfferManagementService {
   constructor(
     @inject(Component.OfferService)
     private readonly offerService: OfferService,
