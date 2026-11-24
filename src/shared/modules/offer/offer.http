@@ -1,0 +1,101 @@
+# Предложения
+## Получить список предложений
+GET http://localhost:4000/offers HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Получить предложение
+GET http://localhost:4000/offers/6aff53686eebdbbc3646ebc3 HTTP/1.1
+Content-Type: application/json
+###
+
+## Получить премиум-предложения в Париже
+GET http://localhost:4000/offers/premium/Paris HTTP/1.1
+Content-Type: application/json
+###
+
+## Удалить предложение
+DELETE http://localhost:4000/offers/6aff53686eebdbbc3646ebc3 HTTP/1.1
+Content-Type: application/json
+###
+
+## Добавить новое предложение
+POST http://localhost:4000/offers HTTP/1.1
+Content-Type: application/json
+
+{
+  "title": "Уютный домик на краю океана",
+  "description": "Просторный и спокойный рядом с Атлантическим океаном.",
+  "date": "2026-07-15T12:00:00.000Z",
+  "city": "Paris",
+  "previewUrl": "https://example.com/paris-preview.jpg",
+  "imagesUrl": ["https://example.com/paris-1.jpg", "https://example.com/paris-2.jpg",
+    "https://example.com/paris-3.jpg", "https://example.com/paris-4.jpg", "https://example.com/paris-5.jpg",
+    "https://example.com/paris-6.jpg"],
+  "isPremium": true,
+  "housingType": "apartment",
+  "roomCount": 2,
+  "maxAdults": 3,
+  "price": 1850,
+  "goods": ["Breakfast", "Air conditioning"],
+  "author": "6adf07b2a0f0327a24259666",
+  "location": { "latitude": 48.85661, "longitude": 2.351499 }
+}
+
+###
+
+## Добавить новое предложение от пользователя
+POST http://localhost:4000/offers HTTP/1.1
+Content-Type: application/json
+
+{
+  "title": "Уютный домик с видом на Альпы",
+  "description": "Просторный и спокойный коттедж с камином и видом на горы.",
+  "date": "2024-07-15T12:00:00.000Z",
+  "city": "Cologne",
+  "previewUrl": "https://example.com/paris-preview.jpg",
+  "imagesUrl": ["https://example.com/paris-1.jpg", "https://example.com/paris-2.jpg",
+    "https://example.com/paris-3.jpg", "https://example.com/paris-4.jpg", "https://example.com/paris-5.jpg",
+    "https://example.com/paris-6.jpg"],
+  "isPremium": true,
+  "housingType": "apartment",
+  "roomCount": 3,
+  "maxAdults": 4,
+  "price": 2000,
+  "goods": ["Breakfast", "Air conditioning"],
+  "author": "6b01cb834074ec45f2f32f67",
+  "location": { "latitude": 50.938361, "longitude": 6.959974 }
+}
+
+###
+
+## Изменить предложение
+PUT http://localhost:4000/offers/6aff53686eebdbbc3646ebc3 HTTP/1.1
+Content-Type: application/json
+
+{
+  "title": "Обновлённый домик с видом на Альпы",
+  "description": "Просторный и спокойный коттедж с камином и видом на горы.",
+  "city": "Cologne",
+  "previewUrl": "https://example.com/cologne-preview.jpg",
+  "imagesUrl": [
+    "https://example.com/cologne-1.jpg",
+    "https://example.com/cologne-2.jpg",
+    "https://example.com/cologne-3.jpg",
+    "https://example.com/cologne-4.jpg",
+    "https://example.com/cologne-5.jpg",
+    "https://example.com/cologne-6.jpg"
+  ],
+  "isPremium": true,
+  "housingType": "house",
+  "roomCount": 4,
+  "maxAdults": 6,
+  "price": 2500,
+  "goods": ["Breakfast", "Air conditioning", "Fridge"],
+  "location": {
+    "latitude": 50.938361,
+    "longitude": 6.959974
+  }
+}
+###
